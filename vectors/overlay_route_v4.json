@@ -1,0 +1,24 @@
+{
+  "primitive": "overlay-route",
+  "version": 4,
+  "cases": [
+    {
+      "name": "same-actor-new-endpoint",
+      "before": {"actor_id": "jis:node:sensor-01", "public_key": "pub-sensor-01", "endpoint": "203.0.113.1:44321"},
+      "after": {"actor_id": "jis:node:sensor-01", "public_key": "pub-sensor-01", "endpoint": "198.51.100.9:44321"},
+      "expect_same_actor": true
+    },
+    {
+      "name": "same-ip-different-key",
+      "before": {"actor_id": "jis:node:sensor-01", "public_key": "pub-sensor-01", "endpoint": "203.0.113.1:44321"},
+      "after": {"actor_id": "jis:node:sensor-02", "public_key": "pub-sensor-02", "endpoint": "203.0.113.1:44321"},
+      "expect_same_actor": false
+    },
+    {
+      "name": "same-actor-same-endpoint",
+      "before": {"actor_id": "jis:node:sensor-01", "public_key": "pub-sensor-01", "endpoint": "203.0.113.1:44321"},
+      "after": {"actor_id": "jis:node:sensor-01", "public_key": "pub-sensor-01", "endpoint": "203.0.113.1:44321"},
+      "expect_same_actor": true
+    }
+  ]
+}

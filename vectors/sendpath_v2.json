@@ -1,0 +1,52 @@
+{
+  "primitive": "ains-sendpath",
+  "version": 2,
+  "expected_actor_id": "jis:ed25519:qiwmmj",
+  "expected_public_key": "pub-qiwmmj",
+  "cases": [
+    {
+      "name": "active-bound-route",
+      "record": {
+        "name": "hub-qiwmmj.aint",
+        "status": "active",
+        "actor_id": "jis:ed25519:qiwmmj",
+        "public_key": "pub-qiwmmj"
+      },
+      "route": {"endpoint": "https://hub.example/api/mux"},
+      "expect_bound": true
+    },
+    {
+      "name": "key-mismatch",
+      "record": {
+        "name": "hub-qiwmmj.aint",
+        "status": "active",
+        "actor_id": "jis:ed25519:qiwmmj",
+        "public_key": "pub-imposter"
+      },
+      "route": {"endpoint": "https://hub.example/api/mux"},
+      "expect_bound": false
+    },
+    {
+      "name": "revoked",
+      "record": {
+        "name": "old-qiwmmj.aint",
+        "status": "revoked",
+        "actor_id": "jis:ed25519:qiwmmj",
+        "public_key": "pub-qiwmmj"
+      },
+      "route": {"endpoint": "https://hub.example/api/mux"},
+      "expect_bound": false
+    },
+    {
+      "name": "missing-endpoint",
+      "record": {
+        "name": "hub-qiwmmj.aint",
+        "status": "active",
+        "actor_id": "jis:ed25519:qiwmmj",
+        "public_key": "pub-qiwmmj"
+      },
+      "route": {},
+      "expect_bound": false
+    }
+  ]
+}

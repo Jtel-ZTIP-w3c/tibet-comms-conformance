@@ -1,0 +1,10 @@
+{
+  "primitive": "null-route",
+  "version": 9,
+  "cases": [
+    {"name": "allow-delivers", "verdict": "allow", "expect_route": "deliver"},
+    {"name": "quarantine-routes-quarantine", "verdict": "quarantine", "expect_route": "quarantine"},
+    {"name": "deny-null-routes", "verdict": "deny", "expect_route": "null-route"},
+    {"name": "explicit-null-route", "verdict": "null-route", "expect_route": "null-route"}
+  ]
+}

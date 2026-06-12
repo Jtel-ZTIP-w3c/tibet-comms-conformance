@@ -1,0 +1,30 @@
+{
+  "primitive": "mux-lane",
+  "version": 3,
+  "channels": [
+    {"channel_id": "ch-chat", "surface": "now.chat.message.normal", "backend": "ipoll", "allowed_intents": ["chat", "task"]},
+    {"channel_id": "ch-vpn", "surface": "now.vpn.tunnel.normal", "backend": "overlay", "allowed_intents": ["vpn:tunnel"]}
+  ],
+  "cases": [
+    {
+      "name": "chat-on-chat-lane",
+      "frame": {"channel_id": "ch-chat", "surface": "now.chat.message.normal", "intent": "chat"},
+      "expect_deliver": true
+    },
+    {
+      "name": "vpn-on-chat-lane",
+      "frame": {"channel_id": "ch-chat", "surface": "now.vpn.tunnel.normal", "intent": "vpn:tunnel"},
+      "expect_deliver": false
+    },
+    {
+      "name": "unknown-channel",
+      "frame": {"channel_id": "ch-missing", "surface": "now.chat.message.normal", "intent": "chat"},
+      "expect_deliver": false
+    },
+    {
+      "name": "vpn-on-vpn-lane",
+      "frame": {"channel_id": "ch-vpn", "surface": "now.vpn.tunnel.normal", "intent": "vpn:tunnel"},
+      "expect_deliver": true
+    }
+  ]
+}

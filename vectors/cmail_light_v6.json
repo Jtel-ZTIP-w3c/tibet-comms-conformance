@@ -1,0 +1,42 @@
+{
+  "primitive": "cmail-light",
+  "version": 6,
+  "cases": [
+    {
+      "name": "valid-cmail",
+      "envelope": {
+        "kind": "cmail.message.v1",
+        "from": "alice.aint",
+        "to": "bob.aint",
+        "subject": "lunch",
+        "body": "12:30 at the usual",
+        "content_hash": "sha256:5301cbb51045b7daf8359e03177c46650e048b3ee5b5ae53751671b378809fb4"
+      },
+      "expect_valid": true
+    },
+    {
+      "name": "wrong-kind-filtered",
+      "envelope": {
+        "kind": "ipoll.raw.v1",
+        "from": "alice.aint",
+        "to": "bob.aint",
+        "subject": "lunch",
+        "body": "12:30 at the usual",
+        "content_hash": "sha256:5301cbb51045b7daf8359e03177c46650e048b3ee5b5ae53751671b378809fb4"
+      },
+      "expect_valid": false
+    },
+    {
+      "name": "tampered-body",
+      "envelope": {
+        "kind": "cmail.message.v1",
+        "from": "alice.aint",
+        "to": "bob.aint",
+        "subject": "lunch",
+        "body": "12:45 at the usual",
+        "content_hash": "sha256:5301cbb51045b7daf8359e03177c46650e048b3ee5b5ae53751671b378809fb4"
+      },
+      "expect_valid": false
+    }
+  ]
+}

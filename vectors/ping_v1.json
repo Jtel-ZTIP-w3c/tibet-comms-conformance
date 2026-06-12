@@ -1,0 +1,43 @@
+{
+  "primitive": "ping-frame",
+  "version": 1,
+  "verify_at": 1750000000,
+  "cases": [
+    {
+      "name": "alive-jis-ssm",
+      "actor_id": "jis:humotica:node-a",
+      "surface": "now.ping.health.normal",
+      "nonce": "n-ping-001",
+      "issued_at": 1749999990,
+      "ttl_seconds": 30,
+      "expect_status": "ALIVE"
+    },
+    {
+      "name": "stale-ping",
+      "actor_id": "jis:humotica:node-a",
+      "surface": "now.ping.health.normal",
+      "nonce": "n-ping-002",
+      "issued_at": 1749999900,
+      "ttl_seconds": 30,
+      "expect_status": "STALE"
+    },
+    {
+      "name": "bad-surface",
+      "actor_id": "jis:humotica:node-a",
+      "surface": "ping",
+      "nonce": "n-ping-003",
+      "issued_at": 1749999990,
+      "ttl_seconds": 30,
+      "expect_status": "BAD_SURFACE"
+    },
+    {
+      "name": "did-not-actor",
+      "actor_id": "did:web:node-a.example",
+      "surface": "now.ping.health.normal",
+      "nonce": "n-ping-004",
+      "issued_at": 1749999990,
+      "ttl_seconds": 30,
+      "expect_status": "BAD_ACTOR"
+    }
+  ]
+}

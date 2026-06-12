@@ -1,0 +1,31 @@
+{
+  "primitive": "gateway-egress",
+  "version": 8,
+  "allowed_hosts": ["api.openai.com", "api.anthropic.com"],
+  "cases": [
+    {
+      "name": "allowed-host-allow-verdict",
+      "request": {"target_host": "api.openai.com", "actor_id": "jis:agent:alice", "intent": "summarize_text", "snaft_verdict": "allow"},
+      "expect_proxy": true,
+      "expect_event": true
+    },
+    {
+      "name": "blocked-host",
+      "request": {"target_host": "evil.example", "actor_id": "jis:agent:alice", "intent": "summarize_text", "snaft_verdict": "allow"},
+      "expect_proxy": false,
+      "expect_event": true
+    },
+    {
+      "name": "snaft-deny",
+      "request": {"target_host": "api.openai.com", "actor_id": "jis:agent:alice", "intent": "crypto_mining", "snaft_verdict": "deny"},
+      "expect_proxy": false,
+      "expect_event": true
+    },
+    {
+      "name": "bad-actor",
+      "request": {"target_host": "api.openai.com", "actor_id": "alice.aint", "intent": "summarize_text", "snaft_verdict": "allow"},
+      "expect_proxy": false,
+      "expect_event": true
+    }
+  ]
+}

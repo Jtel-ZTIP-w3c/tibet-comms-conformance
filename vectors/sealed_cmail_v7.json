@@ -1,0 +1,46 @@
+{
+  "primitive": "sealed-cmail",
+  "version": 7,
+  "cases": [
+    {
+      "name": "sealed-arrived",
+      "carrier": {
+        "carrier_kind": "tza.sealed.v1",
+        "sealed_payload": "hello sealed world",
+        "content_hash": "sha256:6a5063771a9b7d07d2a3be0b2101b1ffe9d3eb02b0e8605590d86086d4958c18",
+        "continuity_state": "arrived"
+      },
+      "expect_decision": "accept"
+    },
+    {
+      "name": "sealed-verified",
+      "carrier": {
+        "carrier_kind": "tza.sealed.v1",
+        "sealed_payload": "hello sealed world",
+        "content_hash": "sha256:6a5063771a9b7d07d2a3be0b2101b1ffe9d3eb02b0e8605590d86086d4958c18",
+        "continuity_state": "verified"
+      },
+      "expect_decision": "accept"
+    },
+    {
+      "name": "hash-mismatch",
+      "carrier": {
+        "carrier_kind": "tza.sealed.v1",
+        "sealed_payload": "tampered",
+        "content_hash": "sha256:6a5063771a9b7d07d2a3be0b2101b1ffe9d3eb02b0e8605590d86086d4958c18",
+        "continuity_state": "arrived"
+      },
+      "expect_decision": "quarantine"
+    },
+    {
+      "name": "wrong-carrier-kind",
+      "carrier": {
+        "carrier_kind": "plain.json",
+        "sealed_payload": "hello sealed world",
+        "content_hash": "sha256:6a5063771a9b7d07d2a3be0b2101b1ffe9d3eb02b0e8605590d86086d4958c18",
+        "continuity_state": "arrived"
+      },
+      "expect_decision": "quarantine"
+    }
+  ]
+}

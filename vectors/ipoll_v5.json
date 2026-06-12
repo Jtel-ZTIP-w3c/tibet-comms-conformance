@@ -1,0 +1,33 @@
+{
+  "primitive": "ipoll-envelope",
+  "version": 5,
+  "seen": ["msg-old"],
+  "delivered": ["msg-1"],
+  "cases": [
+    {
+      "name": "push-new-message",
+      "message": {"kind": "PUSH", "message_id": "msg-1", "from_actor": "jis:agent:alice", "to_aint": "bob.aint"},
+      "expect_deliver": true
+    },
+    {
+      "name": "duplicate-message",
+      "message": {"kind": "PUSH", "message_id": "msg-old", "from_actor": "jis:agent:alice", "to_aint": "bob.aint"},
+      "expect_deliver": false
+    },
+    {
+      "name": "bad-actor",
+      "message": {"kind": "PUSH", "message_id": "msg-2", "from_actor": "alice.aint", "to_aint": "bob.aint"},
+      "expect_deliver": false
+    },
+    {
+      "name": "ack-known-message",
+      "message": {"kind": "ACK", "message_id": "ack-1", "from_actor": "jis:agent:bob", "to_aint": "alice.aint", "ack_for": "msg-1"},
+      "expect_deliver": true
+    },
+    {
+      "name": "ack-unknown-message",
+      "message": {"kind": "ACK", "message_id": "ack-2", "from_actor": "jis:agent:bob", "to_aint": "alice.aint", "ack_for": "msg-missing"},
+      "expect_deliver": false
+    }
+  ]
+}
