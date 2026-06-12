@@ -1,7 +1,25 @@
 # TIBET Comms Conformance - SPEC
 
-This spec defines the deterministic offline vectors in this sandbox kit. It is intentionally
-small: every level is a rule a second implementation can reproduce without a live server.
+This spec defines the deterministic offline vectors in this kit. It is intentionally small:
+every level is a rule a second implementation can reproduce without a live server.
+
+## Maturity (read this first)
+
+These are **structural** vectors. They prove decision-logic conformance — given the same inputs, a
+second implementation reaches the same route / status / verdict. The `actor_key` values are
+*placeholder* Ed25519 keys; the vectors do **not** carry or verify real signatures yet. A conformant
+verifier here checks shape, freshness, ordering, and routing — not cryptography. Cryptographic
+signing is the next step, prioritised at the envelope levels (`v5` I-Poll, `v7` sealed Cmail). The
+real-Ed25519 reference kit is `ztip-conformance`.
+
+## Determinism — the clock is in the vector
+
+Freshness rules below use `now`. `now` is **not** the system clock: it is the vector's top-level
+`verify_at` field (a Unix timestamp). A conformant verifier MUST evaluate freshness against
+`verify_at` and MUST NOT read the wall clock — otherwise two correct implementations diverge on the
+very first run. The reference runner does exactly this; the rule is stated here, normatively, so a
+spec-only implementer (who, per this kit's own premise, does not trust the scripts) matches it from
+the contract alone.
 
 ## Shared Terms
 
@@ -13,6 +31,8 @@ small: every level is a rule a second implementation can reproduce without a liv
 - `surface`: SSM lane label.
 - `route`: selected communication route.
 - `verdict`: allow / deny / quarantine / null-route decision.
+- `verify_at`: top-level Unix timestamp in each vector file — the *only* clock for freshness
+  checks (see Determinism). The verifier never reads the system clock.
 
 ## v1 - Ping Frame
 
@@ -87,6 +107,10 @@ deliver := kind in PUSH|PULL|SYNC|TASK|ACK
 
 ACK is valid only when it references a previously delivered message.
 
+Dedup scope: `message_id not seen before` is evaluated **within a single vector file, in array
+order** — earlier cases in the same file are what counts as "seen". There is no cross-file state
+and no wall-clock involvement.
+
 ## v6 - Cmail Light Envelope
 
 Cmail Light is a human-readable envelope with a deterministic body hash.
@@ -97,6 +121,11 @@ valid := kind == "cmail.message.v1"
          AND computed content_hash == envelope.content_hash
          AND to/from are namespace labels
 ```
+
+Byte rule: `sha256` is computed over the **UTF-8 bytes** of `subject + "\n" + body` — with no
+trailing newline and no Unicode normalization. A subject that looks identical but differs in
+composed vs decomposed form (e.g. a `ö` as one codepoint or two) is a different input by design:
+the bytes are the contract, not the glyphs.
 
 Inbox filtering must ignore non-`cmail.message.v1` messages.
 

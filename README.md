@@ -2,9 +2,17 @@
 
 **Prove that TIBET-native communication interoperates without trusting the vendor.**
 
-This is a sandbox prototype for a future public `tibet-comms-conformance` repo. It mirrors
-the style of `ztip-conformance`: runnable vectors, explicit negative cases, and a reference
-runner that proves only internal consistency. The vectors are the contract.
+The public conformance kit for the TIBET **communication / routing** branch. It mirrors the style
+of `ztip-conformance`: runnable vectors, explicit negative cases, and a reference runner that proves
+only internal consistency. The vectors are the contract.
+
+> **Maturity: structural.** These vectors prove **decision-logic** conformance — given the same
+> inputs, a second implementation reaches the same route / status / verdict. They use *placeholder*
+> Ed25519 keys and do **not** verify real signatures yet, so most accept-rules are shape, freshness,
+> and ordering checks. Cryptographic signing (priority: the envelope levels `v5` I-Poll and `v7`
+> sealed Cmail) and real byte fixtures are the next step — see [ROADMAP.md](ROADMAP.md) and the
+> Maturity note in [SPEC.md](SPEC.md). The real-crypto reference kit, with verifiable Ed25519 and a
+> live capstone, is [ztip-conformance](https://github.com/Jtel-ZTIP-w3c/ztip-conformance).
 
 ## What this repo is
 
