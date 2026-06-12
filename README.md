@@ -69,3 +69,18 @@ and enforcement verdicts.
 
 Products such as Cmail UI, Phantom, Home Agent, KIT, ID-Drop, and the long-tail bridges
 consume this surface. They are not the conformance contract.
+
+---
+
+## Part of the conformance family
+
+Four runnable kits, one per branch of the stack. Run any, implement your own verifier against its
+vectors, interoperate with no vendor in the loop. Together they let a second implementation
+reconstruct the whole spine from the vectors alone.
+
+- [ztip-conformance](https://github.com/Jtel-ZTIP-w3c/ztip-conformance) — identity / attestation / ceremony
+- [tibet-comms-conformance](https://github.com/Jtel-ZTIP-w3c/tibet-comms-conformance) — communication / routing
+- [tibet-evidence-conformance](https://github.com/Jtel-ZTIP-w3c/tibet-evidence-conformance) — storage / evidence
+- [tibet-security-conformance](https://github.com/Jtel-ZTIP-w3c/tibet-security-conformance) — policy / enforcement
+
+Primitive atlas: https://github.com/Jtel-ZTIP-w3c/Jtel-ZTIP-w3c.github.io (INTEROP.md).
