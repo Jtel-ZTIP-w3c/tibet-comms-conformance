@@ -6,13 +6,13 @@ The public conformance kit for the TIBET **communication / routing** branch. It 
 of `ztip-conformance`: runnable vectors, explicit negative cases, and a reference runner that proves
 only internal consistency. The vectors are the contract.
 
-> **Maturity: structural.** These vectors prove **decision-logic** conformance — given the same
-> inputs, a second implementation reaches the same route / status / verdict. They use *placeholder*
-> Ed25519 keys and do **not** verify real signatures yet, so most accept-rules are shape, freshness,
-> and ordering checks. Cryptographic signing (priority: the envelope levels `v5` I-Poll and `v7`
-> sealed Cmail) and real byte fixtures are the next step — see [ROADMAP.md](ROADMAP.md) and the
-> Maturity note in [SPEC.md](SPEC.md). The real-crypto reference kit, with verifiable Ed25519 and a
-> live capstone, is [ztip-conformance](https://github.com/Jtel-ZTIP-w3c/ztip-conformance).
+> **Maturity: mixed, labelled per level.** The envelope levels **`v5` (I-Poll) and `v7` (sealed
+> Cmail) now carry real, verifiable Ed25519 signatures** — deterministic, fixed-seed, the same idiom
+> as [ztip-conformance](https://github.com/Jtel-ZTIP-w3c/ztip-conformance); each has a
+> `bad-signature` case the verifier rejects. The remaining levels prove **decision-logic**
+> conformance on placeholder keys — same inputs → same route / status / verdict — with real signing
+> and byte fixtures on the [ROADMAP.md](ROADMAP.md). Run `./run.sh`: you verify real cryptography at
+> v5/v7 and structural rules elsewhere. See the Maturity note in [SPEC.md](SPEC.md).
 
 ## What this repo is
 
@@ -27,7 +27,11 @@ implementation, in any language, that consumes the same vectors and returns the 
 
 ## Quickstart
 
-No third-party dependencies.
+Requires `cryptography` (for the real Ed25519 at `v5`/`v7`); everything else is standard library.
+
+```sh
+pip install -r requirements.txt
+```
 
 ```sh
 ./run.sh

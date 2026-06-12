@@ -4,32 +4,29 @@ One communication primitive at a time. Each level is deterministic and offline f
 
 | Level | Primitive | Status |
 |---:|---|---|
-| v1 | ping frame | sandbox live |
-| v2 | AINS sendpath | sandbox live |
-| v3 | mux lane isolation | sandbox live |
-| v4 | overlay route identity | sandbox live |
-| v5 | I-Poll envelope | sandbox live |
-| v6 | Cmail Light envelope | sandbox live |
-| v7 | sealed Cmail carrier | sandbox live |
-| v8 | gateway egress decision | sandbox live |
-| v9 | null-route enforcement | sandbox live |
+| v1 | ping frame | structural |
+| v2 | AINS sendpath | structural |
+| v3 | mux lane isolation | structural |
+| v4 | overlay route identity | structural |
+| v5 | I-Poll envelope | **signed (Ed25519)** |
+| v6 | Cmail Light envelope | structural |
+| v7 | sealed Cmail carrier | **signed (Ed25519)** |
+| v8 | gateway egress decision | structural |
+| v9 | null-route enforcement | structural |
 
-## Future Public Repo Shape
+## Family
 
-If promoted out of Codex sandbox:
+Public at `Jtel-ZTIP-w3c/tibet-comms-conformance`, one of four kits (identity / comms / evidence /
+security). The primitive atlas is the hub `INTEROP.md`.
 
-```text
-Jtel-ZTIP-w3c/ztip-conformance       identity / attestation branch
-Humotica/tibet-comms-conformance     communication / routing branch
-Hub COMMS.md                         atlas that links both
-```
+## From structural to signed
 
-## Next Real Vectors
+The envelope levels `v5` (I-Poll) and `v7` (sealed Cmail) now carry **real Ed25519 signatures**
+(`ref/_crypto.py` + `ref/generate_signed.py`, deterministic fixed-seed; each has a `bad-signature`
+negative case the verifier rejects). Next, to take the remaining levels from structural to
+cryptographic:
 
-The sandbox vectors are logical. Public v1 should add cryptographic material:
-
-- Ed25519 signatures for ping frames;
-- canonical SSM field ordering;
-- gateway-event.v1 payload samples;
-- TBZ/.tza hash samples;
-- negative vectors with malformed base64, wrong actor, stale nonce, and lane spoofing.
+- Ed25519 over the canonical for the key-bearing levels (`v2` sendpath, `v4` overlay route);
+- `gateway-event.v1` payload samples for `v8`;
+- real TBZ/.tza byte fixtures (shared with `tibet-evidence-conformance`);
+- more negative vectors: malformed base64, wrong actor, stale nonce, lane spoofing.

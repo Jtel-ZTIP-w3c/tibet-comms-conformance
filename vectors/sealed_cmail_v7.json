@@ -8,7 +8,10 @@
         "carrier_kind": "tza.sealed.v1",
         "sealed_payload": "hello sealed world",
         "content_hash": "sha256:6a5063771a9b7d07d2a3be0b2101b1ffe9d3eb02b0e8605590d86086d4958c18",
-        "continuity_state": "arrived"
+        "continuity_state": "arrived",
+        "sealer": "jis:agent:sealer",
+        "sealer_pubkey": "hDuwLxq0p6YwI3aa8/ZNk7vP7ZewjWpJMxxTR/WJoAE=",
+        "signature": "1ljA/wOYsX55UvpXe8UCoAabLeXXs2QPeEs2VPiw0wmfmEA8z2KYBiC8E7kTCLZGgqnyJEpE02o2vRaT+l2zCg=="
       },
       "expect_decision": "accept"
     },
@@ -18,7 +21,10 @@
         "carrier_kind": "tza.sealed.v1",
         "sealed_payload": "hello sealed world",
         "content_hash": "sha256:6a5063771a9b7d07d2a3be0b2101b1ffe9d3eb02b0e8605590d86086d4958c18",
-        "continuity_state": "verified"
+        "continuity_state": "verified",
+        "sealer": "jis:agent:sealer",
+        "sealer_pubkey": "hDuwLxq0p6YwI3aa8/ZNk7vP7ZewjWpJMxxTR/WJoAE=",
+        "signature": "oOeQz+10huzo9JE/FC8AfEAUpLMs28+cnc8QhROtEP0rneUJtQ+T2O2qFvCm9SIr7qXhKZvHonlEUmpIr5EqCA=="
       },
       "expect_decision": "accept"
     },
@@ -28,7 +34,10 @@
         "carrier_kind": "tza.sealed.v1",
         "sealed_payload": "tampered",
         "content_hash": "sha256:6a5063771a9b7d07d2a3be0b2101b1ffe9d3eb02b0e8605590d86086d4958c18",
-        "continuity_state": "arrived"
+        "continuity_state": "arrived",
+        "sealer": "jis:agent:sealer",
+        "sealer_pubkey": "hDuwLxq0p6YwI3aa8/ZNk7vP7ZewjWpJMxxTR/WJoAE=",
+        "signature": "1ljA/wOYsX55UvpXe8UCoAabLeXXs2QPeEs2VPiw0wmfmEA8z2KYBiC8E7kTCLZGgqnyJEpE02o2vRaT+l2zCg=="
       },
       "expect_decision": "quarantine"
     },
@@ -38,9 +47,26 @@
         "carrier_kind": "plain.json",
         "sealed_payload": "hello sealed world",
         "content_hash": "sha256:6a5063771a9b7d07d2a3be0b2101b1ffe9d3eb02b0e8605590d86086d4958c18",
-        "continuity_state": "arrived"
+        "continuity_state": "arrived",
+        "sealer": "jis:agent:sealer",
+        "sealer_pubkey": "hDuwLxq0p6YwI3aa8/ZNk7vP7ZewjWpJMxxTR/WJoAE=",
+        "signature": "1ljA/wOYsX55UvpXe8UCoAabLeXXs2QPeEs2VPiw0wmfmEA8z2KYBiC8E7kTCLZGgqnyJEpE02o2vRaT+l2zCg=="
+      },
+      "expect_decision": "quarantine"
+    },
+    {
+      "name": "bad-signature",
+      "carrier": {
+        "carrier_kind": "tza.sealed.v1",
+        "sealed_payload": "hello sealed world",
+        "content_hash": "sha256:6a5063771a9b7d07d2a3be0b2101b1ffe9d3eb02b0e8605590d86086d4958c18",
+        "continuity_state": "arrived",
+        "sealer": "jis:agent:sealer",
+        "sealer_pubkey": "hDuwLxq0p6YwI3aa8/ZNk7vP7ZewjWpJMxxTR/WJoAE=",
+        "signature": "vJVOJneXGigv9j+p47InDNzoHnlSTNpaXX4gZASEJKZFmq1kAlwYYZFWhBIJ5XpE9/rqNZSMDpKIXlcWXw47BQ=="
       },
       "expect_decision": "quarantine"
     }
-  ]
+  ],
+  "rule": "accept := carrier_kind == 'tza.sealed.v1' AND sha256(sealed_payload) == content_hash AND continuity_state in {arrived,verified} AND signature verifies over tza.sealed:v1:<content_hash>:<continuity_state> under sealer_pubkey; else quarantine"
 }

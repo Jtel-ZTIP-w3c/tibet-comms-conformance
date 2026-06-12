@@ -12,6 +12,8 @@ import hashlib
 import json
 from pathlib import Path
 
+from _crypto import ipoll_canonical, sealed_canonical, verify_b64
+
 
 ROOT = Path(__file__).resolve().parents[1]
 VECTORS = ROOT / "vectors"
@@ -118,6 +120,7 @@ def verify_ipoll() -> tuple[int, int]:
             and str(m.get("from_actor", "")).startswith("jis:")
             and str(m.get("to_aint", "")).endswith(".aint")
             and m.get("message_id") not in seen
+            and verify_b64(m.get("from_pubkey", ""), m.get("signature", ""), ipoll_canonical(m))
         )
         if m.get("kind") == "ACK":
             got = base and m.get("ack_for") in delivered
@@ -161,6 +164,9 @@ def verify_sealed() -> tuple[int, int]:
             carrier.get("carrier_kind") == "tza.sealed.v1"
             and hash_ok
             and carrier.get("continuity_state") in {"arrived", "verified"}
+            and verify_b64(
+                carrier.get("sealer_pubkey", ""), carrier.get("signature", ""), sealed_canonical(carrier)
+            )
         )
         got = "accept" if accepted else "quarantine"
         passed = got == c["expect_decision"]

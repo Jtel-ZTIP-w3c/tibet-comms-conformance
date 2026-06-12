@@ -1,33 +1,87 @@
 {
-  "primitive": "ipoll-envelope",
-  "version": 5,
-  "seen": ["msg-old"],
-  "delivered": ["msg-1"],
-  "cases": [
-    {
-      "name": "push-new-message",
-      "message": {"kind": "PUSH", "message_id": "msg-1", "from_actor": "jis:agent:alice", "to_aint": "bob.aint"},
-      "expect_deliver": true
-    },
-    {
-      "name": "duplicate-message",
-      "message": {"kind": "PUSH", "message_id": "msg-old", "from_actor": "jis:agent:alice", "to_aint": "bob.aint"},
-      "expect_deliver": false
-    },
-    {
-      "name": "bad-actor",
-      "message": {"kind": "PUSH", "message_id": "msg-2", "from_actor": "alice.aint", "to_aint": "bob.aint"},
-      "expect_deliver": false
-    },
-    {
-      "name": "ack-known-message",
-      "message": {"kind": "ACK", "message_id": "ack-1", "from_actor": "jis:agent:bob", "to_aint": "alice.aint", "ack_for": "msg-1"},
-      "expect_deliver": true
-    },
-    {
-      "name": "ack-unknown-message",
-      "message": {"kind": "ACK", "message_id": "ack-2", "from_actor": "jis:agent:bob", "to_aint": "alice.aint", "ack_for": "msg-missing"},
-      "expect_deliver": false
-    }
-  ]
+ "primitive": "ipoll-envelope",
+ "version": 5,
+ "seen": [
+  "msg-old"
+ ],
+ "delivered": [
+  "msg-1"
+ ],
+ "cases": [
+  {
+   "name": "push-new-message",
+   "message": {
+    "kind": "PUSH",
+    "message_id": "msg-1",
+    "from_actor": "jis:agent:alice",
+    "to_aint": "bob.aint",
+    "from_pubkey": "Aahx56QKq98auk9UVzfPw5Y6wHC32VlESDxautY8JR8=",
+    "signature": "I4en53dCjywK8y0+/D1orWcgkKWT/ScvWsunzZgKE1rARTvCFG9SiiAeD7HtKS+zQO/FvLiFjA93RIp+X4jSDA=="
+   },
+   "expect_deliver": true
+  },
+  {
+   "name": "duplicate-message",
+   "message": {
+    "kind": "PUSH",
+    "message_id": "msg-old",
+    "from_actor": "jis:agent:alice",
+    "to_aint": "bob.aint",
+    "from_pubkey": "Aahx56QKq98auk9UVzfPw5Y6wHC32VlESDxautY8JR8=",
+    "signature": "yBKU1bgJXEe8jrTTKu+wBeJ+/hmPox9v17sEGBvNkzu37rIrHRaU2GN/nqxeKgHaZ6G+kjT9KHSXfj3l9/9CBw=="
+   },
+   "expect_deliver": false
+  },
+  {
+   "name": "bad-actor",
+   "message": {
+    "kind": "PUSH",
+    "message_id": "msg-2",
+    "from_actor": "alice.aint",
+    "to_aint": "bob.aint",
+    "from_pubkey": "xbkQZQBR8QADcuzeDjAjMIpozuAc3JBps5OomCLlzmE=",
+    "signature": "53fW74xOQatJ1d5vuQaD2GvTUiszl0Cp5mbE2yAgIpUAWGAr6k+ylGLz/nFLL0lumpdOhBt6DJLTDUR4Nc8RDQ=="
+   },
+   "expect_deliver": false
+  },
+  {
+   "name": "ack-known-message",
+   "message": {
+    "kind": "ACK",
+    "message_id": "ack-1",
+    "from_actor": "jis:agent:bob",
+    "to_aint": "alice.aint",
+    "ack_for": "msg-1",
+    "from_pubkey": "TA/xZfgrUBYyC8fYR/R5/yX1Z6zGC1Qz2Hoe/SWPKbM=",
+    "signature": "XW3j0XQA3H9H/cIYR33mt+YDABwCvkTBQC40RPZGIMxZNZbZWDMwXM2C9YMTHCSn7eCbLsdslp4OyoPg/9wCCA=="
+   },
+   "expect_deliver": true
+  },
+  {
+   "name": "ack-unknown-message",
+   "message": {
+    "kind": "ACK",
+    "message_id": "ack-2",
+    "from_actor": "jis:agent:bob",
+    "to_aint": "alice.aint",
+    "ack_for": "msg-missing",
+    "from_pubkey": "TA/xZfgrUBYyC8fYR/R5/yX1Z6zGC1Qz2Hoe/SWPKbM=",
+    "signature": "iiUTyvTcTNTVqH02Jst0L54/65lQYF1o3PMEMItQLzY0CnjYsyShWd7Zgm+J0ePx8eBqgCqG5haDH4yh7n/ADg=="
+   },
+   "expect_deliver": false
+  },
+  {
+   "name": "bad-signature",
+   "message": {
+    "kind": "PUSH",
+    "message_id": "msg-badsig",
+    "from_actor": "jis:agent:alice",
+    "to_aint": "bob.aint",
+    "from_pubkey": "Aahx56QKq98auk9UVzfPw5Y6wHC32VlESDxautY8JR8=",
+    "signature": "53oVd0S/HpVDn9EbRpHb1+9/SA2hbPXFlsd4cDEUFXB/dLOuEFOqQrwzOFnhV3rvSH3HW6HjB1CX7aufoUbsCg=="
+   },
+   "expect_deliver": false
+  }
+ ],
+ "rule": "deliver := kind in PUSH|PULL|SYNC|TASK|ACK AND from_actor starts 'jis:' AND to_aint ends '.aint' AND message_id unseen AND (ACK => ack_for delivered) AND signature verifies over ipoll:v1:<kind>:<message_id>:<from_actor>:<to_aint>:<ack_for> under from_pubkey"
 }

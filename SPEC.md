@@ -5,12 +5,13 @@ every level is a rule a second implementation can reproduce without a live serve
 
 ## Maturity (read this first)
 
-These are **structural** vectors. They prove decision-logic conformance — given the same inputs, a
-second implementation reaches the same route / status / verdict. The `actor_key` values are
-*placeholder* Ed25519 keys; the vectors do **not** carry or verify real signatures yet. A conformant
-verifier here checks shape, freshness, ordering, and routing — not cryptography. Cryptographic
-signing is the next step, prioritised at the envelope levels (`v5` I-Poll, `v7` sealed Cmail). The
-real-Ed25519 reference kit is `ztip-conformance`.
+**Mixed maturity, labelled per level.** The envelope levels **`v5` (I-Poll) and `v7` (sealed Cmail)
+carry real Ed25519 signatures** — verifiable, deterministic, derived from a fixed seed
+(`ref/_crypto.py` + `ref/generate_signed.py`), the same idiom as `ztip-conformance`. Each has a
+`bad-signature` case that the verifier rejects. The remaining levels are **structural**: they prove
+decision-logic conformance (same inputs → same route / status / verdict) on *placeholder* keys, with
+real signing / real bytes as the next step (see ROADMAP). So a conformant verifier checks real
+cryptography at v5/v7 and shape / freshness / ordering / routing elsewhere.
 
 ## Determinism — the clock is in the vector
 
@@ -103,9 +104,16 @@ deliver := kind in PUSH|PULL|SYNC|TASK|ACK
            AND from_actor starts with "jis:"
            AND to_aint ends with ".aint"
            AND message_id not seen before
+           AND signature verifies under from_pubkey
 ```
 
 ACK is valid only when it references a previously delivered message.
+
+Signature: each envelope carries `from_pubkey` (base64 raw Ed25519) and `signature` (base64) over
+the canonical `ipoll:v1:<kind>:<message_id>:<from_actor>:<to_aint>:<ack_for>` as UTF-8 bytes
+(`ack_for` is the empty string for non-ACK kinds). The signature MUST verify or the message is not
+delivered. The `bad-signature` case carries a well-formed signature over a *different* canonical and
+must be rejected.
 
 Dedup scope: `message_id not seen before` is evaluated **within a single vector file, in array
 order** — earlier cases in the same file are what counts as "seen". There is no cross-file state
@@ -137,9 +145,15 @@ Sealed Cmail carries a `.tza` object into the continuity path.
 accept := carrier_kind == "tza.sealed.v1"
           AND content_hash matches sealed_payload
           AND continuity_state in ["arrived", "verified"]
+          AND signature verifies under sealer_pubkey
 ```
 
 `quarantine` is expected when hash verification fails.
+
+Signature: the carrier carries `sealer_pubkey` (base64 raw Ed25519) and `signature` (base64) over
+the canonical `tza.sealed:v1:<content_hash>:<continuity_state>` as UTF-8 bytes. A carrier whose
+signature does not verify is quarantined even when the hash and state are valid — the
+`bad-signature` case proves it.
 
 ## v8 - Gateway Egress
 
