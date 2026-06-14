@@ -5,7 +5,7 @@ One communication primitive at a time. Each level is deterministic and offline f
 | Level | Primitive | Status |
 |---:|---|---|
 | v1 | ping frame | structural |
-| v2 | AINS sendpath | structural |
+| v2 | AINS sendpath | **signed (Ed25519)** |
 | v3 | mux lane isolation | structural |
 | v4 | overlay route identity | structural |
 | v5 | I-Poll envelope | **signed (Ed25519)** |

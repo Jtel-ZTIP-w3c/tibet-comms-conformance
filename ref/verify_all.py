@@ -12,7 +12,7 @@ import hashlib
 import json
 from pathlib import Path
 
-from _crypto import ipoll_canonical, sealed_canonical, verify_b64
+from _crypto import ipoll_canonical, sealed_canonical, sendpath_canonical, verify_b64
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -63,11 +63,17 @@ def verify_sendpath() -> tuple[int, int]:
         total += 1
         r = c.get("record") or {}
         route = c.get("route") or {}
+        endpoint = route.get("endpoint", "")
         got = (
             r.get("status") == "active"
             and r.get("actor_id") == doc["expected_actor_id"]
             and r.get("public_key") == doc["expected_public_key"]
-            and bool(route.get("endpoint"))
+            and bool(endpoint)
+            and verify_b64(
+                r.get("public_key", ""),
+                c.get("proof", ""),
+                sendpath_canonical(r.get("actor_id", ""), r.get("name", ""), endpoint),
+            )
         )
         passed = got == c["expect_bound"]
         ok += int(passed)

@@ -59,3 +59,9 @@ def ipoll_canonical(m: dict) -> str:
 
 def sealed_canonical(c: dict) -> str:
     return f"tza.sealed:v1:{c['content_hash']}:{c['continuity_state']}"
+
+
+def sendpath_canonical(actor_id: str, name: str, endpoint: str) -> str:
+    # The actor signs the binding of its identity to a named .aint route + endpoint, so the
+    # send-path is bound by possession of the key, not by a string lookup anyone can fake.
+    return f"ains-sendpath:v2:{actor_id}:{name}:{endpoint}"

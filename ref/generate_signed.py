@@ -12,7 +12,7 @@ Run from the repo root or ref/:  python3 ref/generate_signed.py
 import json
 from pathlib import Path
 
-from _crypto import ipoll_canonical, pub_b64, sealed_canonical, sign_b64
+from _crypto import ipoll_canonical, pub_b64, sealed_canonical, sendpath_canonical, sign_b64
 
 VEC = Path(__file__).resolve().parents[1] / "vectors"
 
@@ -89,6 +89,69 @@ def gen_sealed() -> None:
     print(f"signed {len(cases)} sealed cases -> {path.name}")
 
 
+def gen_sendpath() -> None:
+    """Real Ed25519 actor-proof for the AINS send-path: the route is bound by possession of the
+    key (a signature over actor:name:endpoint), not by a string lookup. Mirrors ztip/ipoll/sealed."""
+    path = VEC / "sendpath_v2.json"
+    actor = "jis:ed25519:hub"
+    imposter = "jis:ed25519:imposter"
+    name, endpoint = "hub.aint", "https://hub.example/api/mux"
+    pub = pub_b64(actor)
+    proof = sign_b64(actor, sendpath_canonical(actor, name, endpoint))
+
+    cases = [
+        {
+            "name": "active-bound-route",
+            "record": {"name": name, "status": "active", "actor_id": actor, "public_key": pub},
+            "route": {"endpoint": endpoint},
+            "proof": proof,
+            "expect_bound": True,
+        },
+        {
+            # real but WRONG key: the route presents an imposter's public key, so the actor's
+            # proof does not verify under it -> not bound.
+            "name": "key-mismatch",
+            "record": {"name": name, "status": "active", "actor_id": actor, "public_key": pub_b64(imposter)},
+            "route": {"endpoint": endpoint},
+            "proof": proof,
+            "expect_bound": False,
+        },
+        {
+            # correct key + valid signature, but the identity is tombstoned -> not bound.
+            "name": "revoked",
+            "record": {"name": "old.aint", "status": "revoked", "actor_id": actor, "public_key": pub},
+            "route": {"endpoint": endpoint},
+            "proof": sign_b64(actor, sendpath_canonical(actor, "old.aint", endpoint)),
+            "expect_bound": False,
+        },
+        {
+            # bad-signature: perfect record + correct key, but the proof is signed over a TAMPERED
+            # canonical (a different endpoint) -> a real, well-formed signature that does not match.
+            # This is what makes the level cryptographic rather than structural.
+            "name": "bad-signature",
+            "record": {"name": name, "status": "active", "actor_id": actor, "public_key": pub},
+            "route": {"endpoint": endpoint},
+            "proof": sign_b64(actor, sendpath_canonical(actor, name, "https://evil.example/api/mux")),
+            "expect_bound": False,
+        },
+    ]
+    doc = {
+        "primitive": "ains-sendpath",
+        "version": 2,
+        "expected_actor_id": actor,
+        "expected_public_key": pub,
+        "cases": cases,
+        "rule": (
+            "bound := record.status == 'active' AND record.actor_id == expected_actor_id AND "
+            "record.public_key == expected_public_key AND route.endpoint present AND proof verifies "
+            "over ains-sendpath:v2:<actor_id>:<record.name>:<route.endpoint> under record.public_key"
+        ),
+    }
+    _write(path, doc, indent=2)
+    print(f"signed {len(cases)} sendpath cases -> {path.name}")
+
+
 if __name__ == "__main__":
     gen_ipoll()
     gen_sealed()
+    gen_sendpath()

@@ -1,52 +1,65 @@
 {
   "primitive": "ains-sendpath",
   "version": 2,
-  "expected_actor_id": "jis:ed25519:qiwmmj",
-  "expected_public_key": "pub-qiwmmj",
+  "expected_actor_id": "jis:ed25519:hub",
+  "expected_public_key": "4n3AUB6rIb1M4awtX/OZaHWQBM1+bnEzYQMzqrb8wR4=",
   "cases": [
     {
       "name": "active-bound-route",
       "record": {
-        "name": "hub-qiwmmj.aint",
+        "name": "hub.aint",
         "status": "active",
-        "actor_id": "jis:ed25519:qiwmmj",
-        "public_key": "pub-qiwmmj"
+        "actor_id": "jis:ed25519:hub",
+        "public_key": "4n3AUB6rIb1M4awtX/OZaHWQBM1+bnEzYQMzqrb8wR4="
       },
-      "route": {"endpoint": "https://hub.example/api/mux"},
+      "route": {
+        "endpoint": "https://hub.example/api/mux"
+      },
+      "proof": "wvHyDZbGpfZAvx+Itnq4KbkBldXPFcalq8/Ke+SrtNvBll4HR7sS0PLatlviK/l2Md4UmNDT64bMIXRUFQ+PAQ==",
       "expect_bound": true
     },
     {
       "name": "key-mismatch",
       "record": {
-        "name": "hub-qiwmmj.aint",
+        "name": "hub.aint",
         "status": "active",
-        "actor_id": "jis:ed25519:qiwmmj",
-        "public_key": "pub-imposter"
+        "actor_id": "jis:ed25519:hub",
+        "public_key": "eRJFLi5mYmcFrQVlAvaMBjA8VUl8bjIhwxneGZtHunc="
       },
-      "route": {"endpoint": "https://hub.example/api/mux"},
+      "route": {
+        "endpoint": "https://hub.example/api/mux"
+      },
+      "proof": "wvHyDZbGpfZAvx+Itnq4KbkBldXPFcalq8/Ke+SrtNvBll4HR7sS0PLatlviK/l2Md4UmNDT64bMIXRUFQ+PAQ==",
       "expect_bound": false
     },
     {
       "name": "revoked",
       "record": {
-        "name": "old-qiwmmj.aint",
+        "name": "old.aint",
         "status": "revoked",
-        "actor_id": "jis:ed25519:qiwmmj",
-        "public_key": "pub-qiwmmj"
+        "actor_id": "jis:ed25519:hub",
+        "public_key": "4n3AUB6rIb1M4awtX/OZaHWQBM1+bnEzYQMzqrb8wR4="
       },
-      "route": {"endpoint": "https://hub.example/api/mux"},
+      "route": {
+        "endpoint": "https://hub.example/api/mux"
+      },
+      "proof": "uEctqQ1Af6guJszOC8e6cL5u9Sm4bK3OKP20lhP5F9IhxzJlg0uvFwpbEanhUcEjAMjhIiF4Ihbsp4vMlDuwAQ==",
       "expect_bound": false
     },
     {
-      "name": "missing-endpoint",
+      "name": "bad-signature",
       "record": {
-        "name": "hub-qiwmmj.aint",
+        "name": "hub.aint",
         "status": "active",
-        "actor_id": "jis:ed25519:qiwmmj",
-        "public_key": "pub-qiwmmj"
+        "actor_id": "jis:ed25519:hub",
+        "public_key": "4n3AUB6rIb1M4awtX/OZaHWQBM1+bnEzYQMzqrb8wR4="
       },
-      "route": {},
+      "route": {
+        "endpoint": "https://hub.example/api/mux"
+      },
+      "proof": "aRwcRa5cAWn53ILS3RgM0fnexWMkAvP6lciJ+QMDgdyJNjoUzW8KYJlh8N6aIoZIXlwfaEZzJ0N/vvKAhboDAw==",
       "expect_bound": false
     }
-  ]
+  ],
+  "rule": "bound := record.status == 'active' AND record.actor_id == expected_actor_id AND record.public_key == expected_public_key AND route.endpoint present AND proof verifies over ains-sendpath:v2:<actor_id>:<record.name>:<route.endpoint> under record.public_key"
 }
