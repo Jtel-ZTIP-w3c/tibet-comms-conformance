@@ -59,6 +59,7 @@ The kit covers the communication branch of the stack:
 | v7 | sealed Cmail carrier | `vectors/sealed_cmail_v7.json` |
 | v8 | gateway egress decision | `vectors/gateway_egress_v8.json` |
 | v9 | null-route enforcement | `vectors/null_route_v9.json` |
+| v10 | mux status frame | `vectors/mux_status_v10.json` |
 
 ## Shape
 

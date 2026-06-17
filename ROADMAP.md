@@ -13,6 +13,7 @@ One communication primitive at a time. Each level is deterministic and offline f
 | v7 | sealed Cmail carrier | **signed (Ed25519)** |
 | v8 | gateway egress decision | structural |
 | v9 | null-route enforcement | structural |
+| v10 | mux status frame (two-way heartbeat_dead) | structural |
 
 ## Family
 

@@ -1,0 +1,26 @@
+{
+  "primitive": "mux-status-frame",
+  "version": 10,
+  "class": "policy/logic",
+  "model": "The emitted 2 bytes are a deterministic function of (caller disclosure, relationship, record state, evidence). byte0 = (disclosure<<6)|(state<<4)|reason ; byte1 = (retry<<6)|(detail_source<<4)|detail_code. HARD RULE: any caller that is not a proven peer WITH a prior relationship/binding receives 0x0000 — silence — never a state/reason nibble. Honest status is relationship-scoped, not merely auth-scoped, so a trusted peer cannot become an enumeration oracle for a peer it never had a binding with. RELATIONSHIP (normative, see SPEC.md v10): relationship=true means a prior bilateral binding the far side can verify — an active session, a local mux-lane registration, a prior AINS/JIS binding, bilateral consent, or an existing tombstone-relation. ALIVE-ACK: 0x4000 is OPTIONAL — only a response to an explicit status query/diagnostic on the trusted path; the data plane stays silent on success (no news is good news), only absence/failure is fed back.",
+  "enums": {
+    "disclosure": {"world": 0, "trusted": 1, "policy": 2},
+    "state": {"alive": 0, "transient": 1, "dead": 2, "quarantine": 3},
+    "reason": {"none": 0, "heartbeat-dead": 1, "not-in-session": 2, "not-registered": 3, "consent-missing": 4, "tombstone-confirmed": 5, "successor-available": 6, "assurance-expired": 7},
+    "retry": {"no-hint": 0, "retry-soon": 1, "retry-later": 2, "do-not-retry": 3},
+    "detail_source": {"none": 0, "local-mux": 1, "local-cache": 2, "signed-canonical": 3},
+    "detail_code": {"none": 0, "route-missing": 1, "endpoint-inactive": 2, "runtime-wrapper-missing": 3, "session-expired": 4, "local-tombstone": 5, "canonical-tombstone": 6, "successor-ref": 7}
+  },
+  "cases": [
+    {"name": "world-sees-alive", "caller": "world", "relationship": false, "state": "alive", "reason": "none", "retry": "no-hint", "detail_source": "none", "detail_code": "none", "expect": "0x0000", "note": "a scanner can't tell you exist"},
+    {"name": "world-sees-tombstone-ANTIENUM", "caller": "world", "relationship": false, "state": "dead", "reason": "tombstone-confirmed", "retry": "do-not-retry", "detail_source": "signed-canonical", "detail_code": "canonical-tombstone", "expect": "0x0000", "negative": "anti-enumeration: dead MUST NOT leak to the world"},
+    {"name": "trusted-alive-ack", "caller": "trusted", "relationship": true, "state": "alive", "reason": "none", "retry": "no-hint", "detail_source": "none", "detail_code": "none", "expect": "0x4000", "note": "OPTIONAL: only as a response to an explicit status query/diagnostic on the trusted path. The data plane stays SILENT on success — absence/failure gets fed back, not success."},
+    {"name": "trusted-transient-heartbeat-dead", "caller": "trusted", "relationship": true, "state": "transient", "reason": "heartbeat-dead", "retry": "retry-soon", "detail_source": "local-mux", "detail_code": "endpoint-inactive", "expect": "0x5152"},
+    {"name": "trusted-not-in-session", "caller": "trusted", "relationship": true, "state": "transient", "reason": "not-in-session", "retry": "retry-later", "detail_source": "local-mux", "detail_code": "runtime-wrapper-missing", "expect": "0x5293"},
+    {"name": "trusted-not-registered", "caller": "trusted", "relationship": true, "state": "transient", "reason": "not-registered", "retry": "retry-soon", "detail_source": "local-mux", "detail_code": "route-missing", "expect": "0x5351"},
+    {"name": "trusted-dead-canonical-tombstone", "caller": "trusted", "relationship": true, "state": "dead", "reason": "tombstone-confirmed", "retry": "do-not-retry", "detail_source": "signed-canonical", "detail_code": "canonical-tombstone", "expect": "0x65F6"},
+    {"name": "trusted-dead-successor", "caller": "trusted", "relationship": true, "state": "dead", "reason": "successor-available", "retry": "do-not-retry", "detail_source": "signed-canonical", "detail_code": "successor-ref", "expect": "0x66F7"},
+    {"name": "trusted-no-relationship-tombstone-SCOPED", "caller": "trusted", "relationship": false, "state": "dead", "reason": "tombstone-confirmed", "retry": "do-not-retry", "detail_source": "signed-canonical", "detail_code": "canonical-tombstone", "expect": "0x0000", "negative": "relationship-scoped: a trusted peer with no prior binding still gets silence, so trusted is not itself an oracle"},
+    {"name": "policy-quarantine", "caller": "policy", "relationship": true, "state": "quarantine", "reason": "consent-missing", "retry": "do-not-retry", "detail_source": "local-mux", "detail_code": "none", "expect": "0xB4D0"}
+  ]
+}

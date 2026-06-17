@@ -181,3 +181,52 @@ route_outcome :=
 ```
 
 The payload must not decide its own route. The verdict decides.
+
+## v10 - MUX Status Frame
+
+The two-way `heartbeat_dead` status. Silently null-routing a dead/revoked peer is a false
+positive — the sender thinks it landed. But saying "dead" to the open world is an enumeration
+oracle. So the status is **relationship-scoped**: honest status travels only to a proven peer that
+already had a binding; everyone else gets silence.
+
+Two reserved bytes carry the status. The frame is a deterministic function of
+`(disclosure, relationship, state, evidence)`:
+
+```text
+byte0 = (disclosure << 6) | (state_class << 4) | reason
+byte1 = (retry << 6) | (detail_source << 4) | detail_code
+```
+
+```text
+byte0  disclosure  00 silent/world · 01 trusted · 10 policy/security · 11 reserved
+       state_class 00 alive · 01 transient/degraded · 10 unavailable/dead · 11 policy/quarantine
+       reason      0000 none · 0001 heartbeat-dead · 0010 not-in-session · 0011 not-registered-on-lane
+                   0100 consent-missing · 0101 tombstone-confirmed · 0110 successor-available
+                   0111 assurance-expired · 1000-1111 reserved
+byte1  retry         00 no-hint · 01 retry-soon · 10 retry-later · 11 do-not-retry-auto
+       detail_source 00 none · 01 local-mux · 10 local-cache/last-known · 11 signed-external/canonical-ref
+       detail_code   0000 none · 0001 route-missing · 0010 endpoint-inactive · 0011 runtime-wrapper-missing
+                     0100 session-expired · 0101 local-tombstone · 0110 canonical-tombstone
+                     0111 successor/ref-available · 1000-1111 reserved
+```
+
+**Hard rule (anti-enumeration).** If the caller is the world (`disclosure == 00`) **or** has no
+relationship, the entire frame is `0x0000` — never leak state/reason via the lower bits. A canonical
+tombstone is self-verifiable only with `detail_source = signed-canonical-ref` (`11`), so e.g.
+`0x65 0xF6`, not `0x65 0xC6`.
+
+**`relationship` (normative).** The security of the whole frame hangs on this bit, so two
+implementations must decide it the same way. `relationship = true` means a **prior bilateral binding
+the far side can verify**: an active session, a local mux-lane registration, a prior AINS/JIS binding,
+recorded bilateral consent, or an existing tombstone-relation with this peer. Mere authentication
+(a valid signature from an otherwise-unknown trusted peer) is **not** a relationship — otherwise
+trusted peers become an enumeration oracle for each other. When in doubt, no relationship → silence.
+
+**Alive-ack (`0x4000`) is optional.** It is only a response to an explicit status query / diagnostic
+on the trusted path. The data plane stays **silent on success** — "no news is good news"; only
+absence or failure (`transient`/`dead`) is fed back. A conformant implementation is not required to
+emit `0x4000` for every successful delivery.
+
+**Layer boundary.** The mux frame is reachability/liveness — a route posture, not a chat receipt. A
+*live* actor that refuses an action is a consent-gate / 403, not a mux code. Whether a human read or
+acted on a message lives one layer up as a signed TIBET receipt, never in these bytes.

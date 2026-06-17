@@ -221,9 +221,34 @@ def verify_null_route() -> tuple[int, int]:
     return ok, total
 
 
+def verify_mux_status() -> tuple[int, int]:
+    doc = load("mux_status_v10.json")
+    e = doc["enums"]
+    ok = total = 0
+    print("### v10 - mux status frame")
+    for c in doc["cases"]:
+        total += 1
+        disclosure = e["disclosure"][c["caller"]]
+        # Relationship-scoped silence (the hard rule): the world, and any peer without a prior
+        # binding/relationship, gets 0x0000 — never a state/reason nibble. This single gate is
+        # what keeps the mux from becoming an enumeration oracle, for the world and for trusted
+        # peers alike. See SPEC.md "v10" for what counts as a relationship.
+        if disclosure == 0 or not c["relationship"]:
+            got = 0x0000
+        else:
+            byte0 = (disclosure << 6) | (e["state"][c["state"]] << 4) | e["reason"][c["reason"]]
+            byte1 = (e["retry"][c["retry"]] << 6) | (e["detail_source"][c["detail_source"]] << 4) | e["detail_code"][c["detail_code"]]
+            got = (byte0 << 8) | byte1
+        want = int(c["expect"], 16)
+        passed = got == want
+        ok += int(passed)
+        print_case(passed, c["name"], f"0x{got:04X}", f"0x{want:04X}")
+    return ok, total
+
+
 def print_case(passed: bool, name: str, got, expect) -> None:
     mark = "PASS" if passed else "FAIL"
-    print(f"  [{mark}] {name:28s} got={got!r} expect={expect!r}")
+    print(f"  [{mark}] {name:34s} got={got!r} expect={expect!r}")
 
 
 def main() -> int:
@@ -237,6 +262,7 @@ def main() -> int:
         verify_sealed,
         verify_gateway,
         verify_null_route,
+        verify_mux_status,
     ]
     passed = total = 0
     for suite in suites:

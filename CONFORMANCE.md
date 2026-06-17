@@ -14,6 +14,7 @@ file and produces the expected result for every case.
 | v7 | `vectors/sealed_cmail_v7.json` | sealed carrier accept/quarantine decision |
 | v8 | `vectors/gateway_egress_v8.json` | allowed egress vs blocked egress with event emission |
 | v9 | `vectors/null_route_v9.json` | verdict-driven delivery/quarantine/null-route |
+| v10 | `vectors/mux_status_v10.json` | two-way heartbeat_dead status; relationship-scoped silence (anti-enumeration) |
 
 ## What Counts As Proof
 

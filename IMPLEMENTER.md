@@ -24,6 +24,7 @@ Goal: build an independent verifier that agrees with the public vectors.
 | v7 | sealed carrier hash + continuity-state decision |
 | v8 | gateway host allowlist + SNAFT verdict + event emission |
 | v9 | verdict-driven null-route/quarantine/deliver routing |
+| v10 | mux status frame: byte encoding + relationship-scoped silence (world/no-relationship → 0x0000) |
 
 ## Why This Matters
 
